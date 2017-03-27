@@ -7,173 +7,63 @@ $(document).on('deviceready', function() {
      var alcada_pantalla_CSS = window.innerHeight ;	// 616px 
      /////////////////////////////////////////////////////////
      
+     // REDIMENSIONEM EL CANVAS
+     var canvas = document.getElementById('canvas');
+     var ctx = canvas.getContext('2d');
+     ctx.canvas.width  = window.innerWidth;
+     ctx.canvas.height = window.innerHeight;
      
+	// centre pantalla ?
+	var centre_x = amplada_pantalla_CSS / 2 ;
+	var centre_y = alcada_pantalla_CSS / 2 ;  // var centre_y = window.innerHeight / 2 ; //
+		
+	// Quina posició la bola ? Temin present que la bola ocupa un espai 	// quina mida la bola ?
+	var mida_x_bola = amplada_pantalla_CSS * ( 10 / 100 ) ; 
+	var mida_y_bola = mida_x_bola ;  // 36 ;
+	var posicio_x_bola = centre_x - ( mida_x_bola / 2 ) ;
+	var posicio_y_bola = centre_y - ( mida_y_bola / 2 ) ;
+		  
+				  
 	document.addEventListener("offline", function() { 
-		alert("ara NO HI HA internet");
+		// alert("ara NO HI HA internet");
 	}, false);
  
 	$(window).resize(function() {
-		alert("has girat el dispositiu");
+		//alert("has girat el dispositiu");
 	}, false); 
 	
 	document.addEventListener('touchstart', function(e) {
-		// alert("Clicat") ;
+	     alert("Clicat") ;
 	});	
 	
 	document.addEventListener('touchmove', function(e) {
-		// alert("has arrastrat el dit");
+	      	
+		var touchobj = e.changedTouches[0] ; // referència al primer punt tocat (pex: el primner dit)
+		startx = parseInt(touchobj.clientX) ; // quina és la posició x en referència al costat esquerra de la pantalla
+		starty = parseInt(touchobj.clientY) ;
+		
+		alert("Touch_x" + startx + "Touch_y" + starty);
+		
 	 });
-	  
-	  
-	$('#connectButton').click(function() {
-		app.connect()
-	})
-
-	$('#disconnectButton').click(function() {
-		app.disconnect()
-	})
-
-	$('#led').click(function(){
-		app.ledOn()
-	})	  
-      
-});
-
-var app = {}
-
-app.PORT = 1337
-app.socketId
-
-app.connect = function() {
-
-	var IPAddress = $('#IPAddress').val()
-
-	console.log('Estem intentant la connexió a ' + IPAddress + ' en el port ' + app.PORT )
-
-	$('#startView').hide()
-	$('#connectingStatus').text('Connectant a ' + IPAddress)
-	$('#connectingView').show()
-
-	chrome.sockets.tcp.create(function(createInfo) {
-
-		app.socketId = createInfo.socketId
-
-		chrome.sockets.tcp.connect(
-			app.socketId,
-			IPAddress,
-			app.PORT,
-			connectedCallback)
-	})
-
-	function connectedCallback(result) {
 	
-		if (result === 0) {
-
-			 console.log('Connectat a ' + IPAddress)
-			 var info = "Connectat a " + IPAddress + " al sockedID : " + app.socketId 
-			 //navigator.notification.alert(info, function() {})
-			 			
-			 $('#connectingView').hide()
-			 $('#controlView').show()
-			
-		}
-		else {
-
-			var errorMessage = 'Ha fallat la connexió a ' + app.IPAdress + ' en el port ' + app.PORT
-			console.log(errorMessage)
-			//navigator.notification.alert(errorMessage, function() {})
-			$('#connectingView').hide()
-			$('#startView').show()
-		}
-	}
-}
-
-app.sendString = function(sendString) {
-
-	console.log('Intentant enviar :' + sendString)	
-
-	chrome.sockets.tcp.send (
-		app.socketId,
-		app.stringToBuffer(sendString),
-		function(sendInfo) {
-
-			if (sendInfo.resultCode < 0) {
-
-				var errorMessage = 'Ha fallat l´enviament de dades'
-
-				console.log(errorMessage)
-				//navigator.notification.alert(errorMessage, function() {})
-			}
-			else
-			{
-				var info = 'Enviat el valor : ' + sendInfo + ' i obtingut el resultat : ' + sendInfo.resultCode 
-				//navigator.notification.alert(info, function() {})
-			}
-		}
-			
-	)
-}
-
-app.ledOn = function() {
-
-	app.sendString('H')
-
-	$('#led').removeClass('ledOff').addClass('ledOn')
-
-	$('#led').unbind('click').click(function(){
-		app.ledOff()
-	})	
+	draw()	 ;
 	
-	app.disconnect()
-	$('#connectingView').hide()
-	$('#startView').show()
+});	
 	
-}
 
-app.ledOff = function() {
 
-	app.sendString('L')
-
-	$('#led').removeClass('ledOn').addClass('ledOff')
-
-	$('#led').unbind('click').click(function(){
-		app.ledOn()
-	})
+function draw() {
 	
-	app.disconnect()
-	$('#connectingView').hide()
-	$('#startView').show()
-}
-
-app.disconnect = function() {
-
-	chrome.sockets.tcp.close(app.socketId, function() {
-		console.log('Finalitzat el tancament del Socket TCP.')
-		//navigator.notification.alert('Finalitzat el tancament del Socket TCP.', function() {})
-	})
-
-	$('#controlView').hide()
-	$('#startView').show()
-}
-
-// Helper functions. 
-
-app.stringToBuffer = function(string) {
-
-	var buffer = new ArrayBuffer(string.length)
-	var bufferView = new Uint8Array(buffer)
+		alert("cridada la funció DRAW");
 	
-	for (var i = 0; i < string.length; ++i) {
-
-		bufferView[i] = string.charCodeAt(i)
-	}
-
-	return buffer
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+		
+		 // Formas rectangulares
+          	ctx.fillRect(25,25,100,100);
+          	ctx.clearRect(45,45,60,60);
+	        ctx.strokeRect(50,50,50,50);
+		
+		
+		
 }
-
-app.bufferToString = function(buffer) {
-
-	return String.fromCharCode.apply(null, new Uint8Array(buffer))
-}
-
-
